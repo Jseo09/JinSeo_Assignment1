@@ -21,10 +21,25 @@ public class ArrayStack<T> implements StackInterface{
 			throw new IllegalArgumentException("Capacity does not work");
 		}
 	}
+	public T peek(){
+		if (isEmpty())
+			throw null;
+		T item = stack[topIndex];
+		return item;
+
+	}
+	public boolean contains(T item) {
+		for (int i = 0; i <= topIndex; i++) {
+			if (stack[i].equals(item)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public T pop(){
 		if (isEmpty()) {
-			throw new IllegalStateException("Stack is empty");
+			throw null;
 		}
 		T item = stack[topIndex];
 		stack[topIndex] = null; // Remove reference to the popped item to prevent memory leaks
