@@ -4,5 +4,8 @@ public interface StackInterface<T> {
 	public boolean isEmpty();
 	public int getSizeOfWords();
 	public T getIndex(int index);
+	public T peek();
+	public void empty();
+	
 
 }
