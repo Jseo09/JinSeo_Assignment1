@@ -8,7 +8,7 @@ public class Main {
 		int current_question = 4;
 
 		//EDIT THIS DIRECTORY DEPENDING ON THE LOCATION OF THE FILE
-		String directory = "C:/Users/seoji/Downloads/data/data/tiny2.txt";
+		String directory = "C:/Users/seoji/Downloads/data/data/tiny1.txt";
 		getMostWordCounts(directory);
 		current_question = getMostWordsForSpecificWord(directory, "the", current_question);
 		current_question = getMostWordsForSpecificWord(directory, "of", current_question);
