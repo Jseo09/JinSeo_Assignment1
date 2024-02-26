@@ -201,7 +201,7 @@ public class Main {
 	 * DEPENDENCIES:   N/A
 	 * ---------------------------------------------------------------
 	 */
-	public static int forThePhase(String fileDirectory, String word, int question_number) {
+	public static int forThePhase(String fileDirectory, String phrase, int question_number) {
 		ArrayStack<String> sentenceWithMaxOccurrences = new ArrayStack<>(10000);
 		int maxOccurrences = 0;
 
@@ -215,42 +215,55 @@ public class Main {
 			// Split text into sentences based on periods, exclamation marks, question marks, and newlines occurring together
 			String[] sentences = textBuilder.toString().split("(?<=[.!?\\n]|^)(?!\\s*$)");
 
-			Pattern pattern = Pattern.compile("\\b" + word.trim() + "\\b", Pattern.CASE_INSENSITIVE);
-
 			for (String sentence : sentences) {
-				Matcher matcher = pattern.matcher(sentence);
-				int occurrences = 0;
-				while (matcher.find()) {
-					occurrences++;
-				}
-				if (occurrences > maxOccurrences) {
-					maxOccurrences = occurrences;
-					sentenceWithMaxOccurrences.empty();
-					sentenceWithMaxOccurrences.push(sentence.trim()); // Trim to remove leading/trailing whitespace
-				} else if (occurrences == maxOccurrences) {
-					sentenceWithMaxOccurrences.push(sentence.trim());
+				// Check if the sentence contains the phrase
+				if (sentence.toLowerCase().contains(phrase.toLowerCase())) {
+					// Count occurrences of the phrase within the sentence
+					int occurrences = countOccurrences(sentence.toLowerCase(), phrase.toLowerCase());
+					if (occurrences > maxOccurrences) {
+						maxOccurrences = occurrences;
+						sentenceWithMaxOccurrences.empty();
+						sentenceWithMaxOccurrences.push(sentence.trim()); // Trim to remove leading/trailing whitespace
+					} else if (occurrences == maxOccurrences) {
+						sentenceWithMaxOccurrences.push(sentence.trim());
+					}
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 		ArrayStack<String> temp = new ArrayStack<>(1000);
-		while(!sentenceWithMaxOccurrences.isEmpty()){
+		while (!sentenceWithMaxOccurrences.isEmpty()) {
 			temp.push(sentenceWithMaxOccurrences.pop());
 		}
+
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("Question" + question_number + ".txt"), "utf-8"))) {
 			while (!temp.isEmpty()) {
 				String sentence = temp.pop().trim();
 				if (!sentence.isEmpty()) {
-					writer.write(word.trim() + ":" + maxOccurrences + ":" + sentence.replaceAll("[.!?]$", "").toLowerCase() + "\n");
+					writer.write(phrase.trim() + ":" + maxOccurrences + ":" + sentence.replaceAll("[.!?]$", "").toLowerCase() + "\n");
 				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+
 		question_number += 1;
 		return question_number;
 	}
+
+	public static int countOccurrences(String sentence, String phrase) {
+		int count = 0;
+		int index = sentence.indexOf(phrase);
+		while (index != -1) {
+			count++;
+			index = sentence.indexOf(phrase, index + 1);
+		}
+		return count;
+	}
+
+
 
 	public static void highestFrequencyInSentence(String fileDirectory) {
 		ArrayStack<String> mostFrequentWords = new ArrayStack<>(1000);
