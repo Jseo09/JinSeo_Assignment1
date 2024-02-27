@@ -1,2 +1,2 @@
 Jin Seo 
-- Worked on all of the codes. 
+- Created the files, and coded
