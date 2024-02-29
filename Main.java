@@ -111,7 +111,7 @@ public class Main {
 
 
 
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output+ outPut_name+"1.txt"), "utf-8"))) {
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output+ outPut_name+"-1.txt"), "utf-8"))) {
 			if (indexKeeper.getSizeOfWords() >= 1) {
 				for (int i = 0; i < indexKeeper.getSizeOfWords(); i++) {
 					writer.write(stack.getIndex(indexKeeper.getIndex(i)) + " : " + counts.getIndex(maxIndex));
@@ -124,7 +124,7 @@ public class Main {
 
 		while (!indexForThird.isEmpty()) {
 			int index = indexForThird.pop();
-			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output + outPut_name+"2.txt"), "utf-8"))) {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output + outPut_name+"-2.txt"), "utf-8"))) {
 				writer.write(stack.getIndex(index).toLowerCase() + " : " + counts.getIndex(index));
 			} catch (IOException e) {
 				throw new RuntimeException(e);
@@ -189,7 +189,7 @@ public class Main {
 			temp.push(sentenceWithMaxOccurrences.pop());
 		}
 		if (!temp.isEmpty()) {
-			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputDirectory + output_name + question_number + ".txt"), "utf-8"))) {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputDirectory + output_name +"-"+question_number + ".txt"), "utf-8"))) {
 				while (!temp.isEmpty()) {
 					writer.write(word + ":" + maxOccurrences + ":" + temp.pop().replace(".", "").toLowerCase() + "\n");
 				}
@@ -252,7 +252,7 @@ public class Main {
 			temp.push(sentenceWithMaxOccurrences.pop());
 		}
 
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(finalDirectory + outputName + question_number + ".txt"), "utf-8"))) {
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(finalDirectory + outputName+"-" + question_number + ".txt"), "utf-8"))) {
 			if(temp.isEmpty()){
 				ArrayStack<String> temp2 = new ArrayStack<>(1000);
 				while(!sentences_All.isEmpty()){
@@ -389,7 +389,7 @@ public class Main {
 			temp2.push(print.pop());
 		}
 		if (!temp2.isEmpty()) {
-			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(finalDirectory+ outPutname+"3.txt"), "utf-8"))) {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(finalDirectory+ outPutname+"-3.txt"), "utf-8"))) {
 				while (!temp2.isEmpty()) {
 					writer.write(temp2.pop().replace(".", "").toLowerCase() + "\n");
 				}
