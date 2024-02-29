@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.IOException;
@@ -6,17 +7,23 @@ import java.io.IOException;
 public class Main {
 	public static void main(String[] args) {
 		int current_question = 4;
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("Enter your file directory");
+		String directory = scanner.nextLine();
+		System.out.println("Enter directory for the desire location (REMEMBER, when we are typing the file directory, please add \\ in the end)");
+		System.out.println("EX: C:\\Users\\Example\\2024 Spring\\");
+		String final_Directory = scanner.nextLine();
+		System.out.println("Enter the desire output file name");
+		String outPut_name = scanner.nextLine();
+		getMostWordCounts(directory, final_Directory, outPut_name);
+		current_question = getMostWordsForSpecificWord(directory, "the", current_question, final_Directory, outPut_name);
+		current_question = getMostWordsForSpecificWord(directory, "of", current_question, final_Directory, outPut_name);
+		current_question = getMostWordsForSpecificWord(directory, "was", current_question, final_Directory, outPut_name);
+		current_question = forThePhase(directory, "but the", current_question, final_Directory, outPut_name);
+		current_question = forThePhase(directory, "it was", current_question, final_Directory, outPut_name);
+		current_question = forThePhase(directory, "in my", current_question, final_Directory, outPut_name);
+		highestFrequencyInSentence(directory, final_Directory, outPut_name);
 
-		//EDIT THIS DIRECTORY DEPENDING ON THE LOCATION OF THE FILE
-		String directory = "C:/Users/seoji/Downloads/data/data/tiny1.txt";
-		getMostWordCounts(directory);
-		current_question = getMostWordsForSpecificWord(directory, "the", current_question);
-		current_question = getMostWordsForSpecificWord(directory, "of", current_question);
-		current_question = getMostWordsForSpecificWord(directory, "was", current_question);
-		current_question = forThePhase(directory, "but the", current_question);
-		current_question = forThePhase(directory, "it was", current_question);
-		current_question = forThePhase(directory, "in my", current_question);
-		highestFrequencyInSentence(directory);
 	}
 
 	/**
@@ -30,7 +37,7 @@ public class Main {
 	 * DEPENDENCIES:   N/A
 	 * ---------------------------------------------------------------
 	 */
-	private static void getMostWordCounts(String fileDirectory) {
+	private static void getMostWordCounts(String fileDirectory, String output, String outPut_name) {
 		int wordCount = 0;
 		ArrayStack<String> stack = new ArrayStack<>(10000);
 		ArrayStack<Integer> counts = new ArrayStack<>(10000);
@@ -54,20 +61,24 @@ public class Main {
 						counts.push(1);
 						wordCount++;
 					} else {
-						counts.setIndex(index, counts.getIndex(index) + 1); // Update count for existing word
+						// Update count for existing word
+						counts.setIndex(index, counts.getIndex(index) + 1);
 					}
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		//Index for the maximum index keeping
 		int maxIndex = 0;
 		ArrayStack<Integer> indexKeeper = new ArrayStack<>(100);
 		for (int i = 1; i < wordCount; i++) {
+			//If there is more count in certain index, compared to the count in the max index, we empty the stack and change the max index
 			if (counts.getIndex(i) > counts.getIndex(maxIndex)) {
 				maxIndex = i;
 				indexKeeper.empty();
 			}
+
 			if (counts.getIndex(i).equals(counts.getIndex(maxIndex))) {
 				indexKeeper.push(i);
 			}
@@ -99,7 +110,8 @@ public class Main {
 		}
 
 
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("Question1.txt"), "utf-8"))) {
+
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output+ outPut_name+"1.txt"), "utf-8"))) {
 			if (indexKeeper.getSizeOfWords() >= 1) {
 				for (int i = 0; i < indexKeeper.getSizeOfWords(); i++) {
 					writer.write(stack.getIndex(indexKeeper.getIndex(i)) + " : " + counts.getIndex(maxIndex));
@@ -112,7 +124,7 @@ public class Main {
 
 		while (!indexForThird.isEmpty()) {
 			int index = indexForThird.pop();
-			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("Question2.txt"), "utf-8"))) {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output + outPut_name+"2.txt"), "utf-8"))) {
 				writer.write(stack.getIndex(index).toLowerCase() + " : " + counts.getIndex(index));
 			} catch (IOException e) {
 				throw new RuntimeException(e);
@@ -133,7 +145,7 @@ public class Main {
 	 * DEPENDENCIES:   N/A
 	 * ---------------------------------------------------------------
 	 */
-	public static int getMostWordsForSpecificWord(String fileDirectory, String word, int question_number) {
+	public static int getMostWordsForSpecificWord(String fileDirectory, String word, int question_number, String outputDirectory, String output_name) {
 		ArrayStack<String> sentenceWithMaxOccurrences = new ArrayStack<>(10000);
 		ArrayStack<String> sentencesWithNoOccurence = new ArrayStack<>(10000);
 		int maxOccurrences = 0;
@@ -177,7 +189,7 @@ public class Main {
 			temp.push(sentenceWithMaxOccurrences.pop());
 		}
 		if (!temp.isEmpty()) {
-			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("Question" + question_number + ".txt"), "utf-8"))) {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputDirectory + output_name + question_number + ".txt"), "utf-8"))) {
 				while (!temp.isEmpty()) {
 					writer.write(word + ":" + maxOccurrences + ":" + temp.pop().replace(".", "").toLowerCase() + "\n");
 				}
@@ -201,8 +213,9 @@ public class Main {
 	 * DEPENDENCIES:   N/A
 	 * ---------------------------------------------------------------
 	 */
-	public static int forThePhase(String fileDirectory, String phrase, int question_number) {
+	public static int forThePhase(String fileDirectory, String phrase, int question_number, String finalDirectory, String outputName) {
 		ArrayStack<String> sentenceWithMaxOccurrences = new ArrayStack<>(10000);
+		ArrayStack<String> sentences_All = new ArrayStack<>(1000);
 		int maxOccurrences = 0;
 
 		try (BufferedReader reader = new BufferedReader(new FileReader(fileDirectory))) {
@@ -216,6 +229,7 @@ public class Main {
 			String[] sentences = textBuilder.toString().split("(?<=[.!?\\n]|^)(?!\\s*$)");
 
 			for (String sentence : sentences) {
+				sentences_All.push(sentence);
 				// Check if the sentence contains the phrase
 				if (sentence.toLowerCase().contains(phrase.toLowerCase())) {
 					// Count occurrences of the phrase within the sentence
@@ -238,7 +252,19 @@ public class Main {
 			temp.push(sentenceWithMaxOccurrences.pop());
 		}
 
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("Question" + question_number + ".txt"), "utf-8"))) {
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(finalDirectory + outputName + question_number + ".txt"), "utf-8"))) {
+			if(temp.isEmpty()){
+				ArrayStack<String> temp2 = new ArrayStack<>(1000);
+				while(!sentences_All.isEmpty()){
+					temp2.push(sentences_All.pop().trim().toLowerCase());
+				}
+				while(!temp2.isEmpty()){
+					String sentence = temp2.pop().trim();
+					if(!sentence.isEmpty()){
+						writer.write(phrase.trim() + ":" + maxOccurrences + ":" + sentence.replaceAll("[.!?]$", "")+"\n");
+					}
+				}
+			}
 			while (!temp.isEmpty()) {
 				String sentence = temp.pop().trim();
 				if (!sentence.isEmpty()) {
@@ -253,6 +279,8 @@ public class Main {
 		return question_number;
 	}
 
+
+
 	public static int countOccurrences(String sentence, String phrase) {
 		int count = 0;
 		int index = sentence.indexOf(phrase);
@@ -265,7 +293,7 @@ public class Main {
 
 
 
-	public static void highestFrequencyInSentence(String fileDirectory) {
+	public static void highestFrequencyInSentence(String fileDirectory, String finalDirectory, String outPutname) {
 		ArrayStack<String> mostFrequentWords = new ArrayStack<>(1000);
 		ArrayStack<String> sentencesWithFrequent = new ArrayStack<>(100);
 		ArrayStack<String> sentencesWithoutDuplicates = new ArrayStack<>(50);
@@ -361,7 +389,7 @@ public class Main {
 			temp2.push(print.pop());
 		}
 		if (!temp2.isEmpty()) {
-			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("Question3.txt"), "utf-8"))) {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(finalDirectory+ outPutname+"3.txt"), "utf-8"))) {
 				while (!temp2.isEmpty()) {
 					writer.write(temp2.pop().replace(".", "").toLowerCase() + "\n");
 				}
@@ -369,10 +397,6 @@ public class Main {
 				throw new RuntimeException(e);
 			}
 		}
-
-
-
-
 
 
 	}
