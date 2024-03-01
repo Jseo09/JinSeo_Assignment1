@@ -7,20 +7,22 @@ import java.io.IOException;
 public class Main {
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
-    System.out.println("Enter your file directory");
+   System.out.println("Enter your file directory");
     String directory = scanner.nextLine();
     System.out.println("Enter directory for the desire location (REMEMBER, when we are typing the file directory, please add \\ in the end)");
     System.out.println("EX: C:\\Users\\Example\\2024 Spring\\");
     String final_Directory = scanner.nextLine();
     System.out.println("Enter the desire output file name");
     String outPut_name = scanner.nextLine();
-	 //String directory = "C:/Users/seoji/Downloads/data/data/tiny2.txt";
+	 //C:\Users\seoji\Downloads\data\data\tiny1.txt
+		//C:\Users\seoji\OneDrive\바탕 화면\College\2023 Fall\2024 Spring\
 		int question_number = 4;
 		ArrayStack<String> words = new ArrayStack<>(10000);
 		ArrayStack<String> tempStack = new ArrayStack<>(10000);
 		ArrayStack<String> tempStack2 = new ArrayStack<>(10000);
 		ArrayStack<String> tempStack3 = new ArrayStack<>(10000);
 		ArrayStack<String> tempStack4 = new ArrayStack<>(10000);
+		ArrayStack<String> tempStack5 = new ArrayStack<>(10000);
 
 		try (BufferedReader reader = new BufferedReader(new FileReader(directory))) {
 			String line;
@@ -37,25 +39,26 @@ public class Main {
 			tempStack2.push(word);
 			tempStack3.push(word);
 			tempStack4.push(word);
+			tempStack5.push(word);
 
 		}
 		getMostWordCount(tempStack, final_Directory, outPut_name);
 		question_number = getMostWordsForSpecificWord(tempStack, final_Directory,outPut_name,"the", question_number);
 		question_number = getMostWordsForSpecificWord(tempStack, final_Directory,outPut_name,"of", question_number);
 		question_number = getMostWordsForSpecificWord(tempStack, final_Directory,outPut_name,"was", question_number);
-		question_number = forThePhase(tempStack, "but the", final_Directory, outPut_name, question_number);
-		question_number = forThePhase(tempStack2, "it was", final_Directory, outPut_name, question_number);
-		question_number = forThePhase(tempStack3, "in my", final_Directory, outPut_name, question_number);
-		highestFrequencyInSentence(tempStack4);
+		question_number = forThePhase(tempStack5, final_Directory, outPut_name, "but the",question_number);
+		question_number = forThePhase(tempStack2, final_Directory, outPut_name, "it was", question_number);
+		question_number = forThePhase(tempStack3, final_Directory, outPut_name,"in my",  question_number);
+		highestFrequencyInSentence(tempStack4, final_Directory, outPut_name);
 
 	}
-	public static void highestFrequencyInSentence(ArrayStack<String> stack) {
+	public static void highestFrequencyInSentence(ArrayStack<String> stack, String finalDirectory, String outPutname) {
 		ArrayStack<String> mostFrequentWords = new ArrayStack<>(1000);
 		ArrayStack<String> sentencesWithFrequent = new ArrayStack<>(100);
 		ArrayStack<String> sentencesWithoutDuplicates = new ArrayStack<>(50);
 		ArrayStack<String> wordsWithoutDuplicates = new ArrayStack<>(50);
-		ArrayStack<String> print = new ArrayStack<>(100);
-		ArrayStack<String> temp2 = new ArrayStack<>(100);
+		ArrayStack<String> print = new ArrayStack<>(1000);
+		ArrayStack<String> temp2 = new ArrayStack<>(1000);
 
 		int maxFrequency = 0;
 		String line;
@@ -109,14 +112,32 @@ public class Main {
 			while (!tempStack.isEmpty()) {
 				mostFrequentWords.push(tempStack.pop());
 			}
+			// Print the unique word
 			wordsWithoutDuplicates.push(word);
 		}
+		while (!sentencesWithoutDuplicates.isEmpty()) {
+			ArrayStack<String> temp = new ArrayStack<>(100);
 
-		while (!print.isEmpty()) {
+			String sentence = sentencesWithoutDuplicates.pop();
+			while (!wordsWithoutDuplicates.isEmpty()) {
+				String word = wordsWithoutDuplicates.pop();
+				// Push the word into a temporary stack
+				temp.push(word);
+				// Check if the word's frequency in the sentence matches the max frequency
+				if (countWordFrequency(word, sentence) == maxFrequency) {
+					print.push(word + ":" + maxFrequency + ":" + sentence);
+				}
+			}
+			// Restore the words back to the original stack
+			while (!temp.isEmpty()) {
+				wordsWithoutDuplicates.push(temp.pop());
+			}
+		}
+		while(!print.isEmpty()){
 			temp2.push(print.pop());
 		}
 		if (!temp2.isEmpty()) {
-			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("-3.txt"), "utf-8"))) {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(finalDirectory+ outPutname+"-3.txt"), "utf-8"))) {
 				while (!temp2.isEmpty()) {
 					writer.write(temp2.pop().replace(".", "").toLowerCase() + "\n");
 				}
@@ -124,8 +145,9 @@ public class Main {
 				throw new RuntimeException(e);
 			}
 		}
+
 	}
-		private static void getMostWordCount(ArrayStack<String> stack, String outputDirectory, String output_name) {
+	private static void getMostWordCount(ArrayStack<String> stack, String outputDirectory, String output_name) {
 		int wordCount = 0;
 		ArrayStack<String> words = new ArrayStack<>(10000);
 		ArrayStack<Integer> counts = new ArrayStack<>(10000);
@@ -277,51 +299,53 @@ public class Main {
 
 		StringBuilder textBuilder = new StringBuilder();
 		String line;
+
 		while (!stack.isEmpty()) {
 			line = stack.pop();
-			textBuilder.append(line).append(" ");
+			textBuilder.append(line).append("\n");
 		}
-		String[] sentences = textBuilder.toString().split("(?<=[.!?])\\s+");
+		String[] sentences = textBuilder.toString().split("(?<=[.!?\\n]|^)(?!\\s*$)");
 		for (String sentence : sentences) {
 			sentences_All.push(sentence);
+			// Check if the sentence contains the phrase
 			if (sentence.toLowerCase().contains(phrase.toLowerCase())) {
+				// Count occurrences of the phrase within the sentence
 				int occurrences = countOccurrences(sentence.toLowerCase(), phrase.toLowerCase());
 				if (occurrences > maxOccurrences) {
 					maxOccurrences = occurrences;
 					sentenceWithMaxOccurrences.empty();
-					sentenceWithMaxOccurrences.push(sentence.trim());
+					sentenceWithMaxOccurrences.push(sentence.trim()); // Trim to remove leading/trailing whitespace
 				} else if (occurrences == maxOccurrences) {
 					sentenceWithMaxOccurrences.push(sentence.trim());
 				}
 			}
 		}
 
-
 		ArrayStack<String> temp = new ArrayStack<>(1000);
 		while (!sentenceWithMaxOccurrences.isEmpty()) {
 			temp.push(sentenceWithMaxOccurrences.pop());
 		}
 
-		ArrayStack<String> temp2 = new ArrayStack<>(1000);
-		while (!sentences_All.isEmpty()) {
-			temp2.push(sentences_All.pop().trim().toLowerCase());
-		}
-		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputDirectory+outputName+"-"+question_number + ".txt"), "utf-8"))) {
+
+		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputDirectory + outputName+"-" + question_number + ".txt"), "utf-8"))) {
 			if(temp.isEmpty()){
-				while (!temp2.isEmpty()) {
+				ArrayStack<String> temp2 = new ArrayStack<>(1000);
+				while(!sentences_All.isEmpty()){
+					temp2.push(sentences_All.pop().trim().toLowerCase());
+				}
+				while(!temp2.isEmpty()){
 					String sentence = temp2.pop().trim();
-					if (!sentence.isEmpty()) {
-						writer.write(phrase.trim() + ":" + maxOccurrences + ":" + sentence.replaceAll("[.!?]+$", "") + "\n");
+					if(!sentence.isEmpty()){
+						writer.write(phrase.trim() + ":" + maxOccurrences + ":" + sentence.replaceAll("[.!?]$", "")+"\n");
 					}
 				}
 			}
 			while (!temp.isEmpty()) {
 				String sentence = temp.pop().trim();
 				if (!sentence.isEmpty()) {
-					writer.write(phrase.trim().toLowerCase() + ":" + maxOccurrences + ":" + sentence.replaceAll("[.!?]+$", "") + "\n");
+					writer.write(phrase.trim() + ":" + maxOccurrences + ":" + sentence.replaceAll("[.!?]$", "").toLowerCase() + "\n");
 				}
 			}
-
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
