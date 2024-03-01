@@ -28,6 +28,7 @@ public class ArrayStack<T> implements StackInterface{
 		return item;
 
 	}
+
 	public boolean contains(T item) {
 		for (int i = 0; i <= topIndex; i++) {
 			if (stack[i].equals(item)) {
@@ -76,7 +77,7 @@ public class ArrayStack<T> implements StackInterface{
 		topIndex = -1;
 	}
 
-	public void setIndex(T index, T value){
+	public void setIndex(int index, T value){
 		stack[(int) index] = value;
 
 	}
