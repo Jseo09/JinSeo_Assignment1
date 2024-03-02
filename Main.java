@@ -6,14 +6,20 @@ import java.io.IOException;
 
 public class Main {
 	public static void main(String[] args) {
+		if (args.length < 2) {
+			System.err.println("Please input the file");
+			System.exit(1);
+		}
+		else if(args.length >= 2){
+			System.out.println("The input directory is " + args[0]);
+			System.out.println("The output directory is " + args[1]);
+		}
+		System.out.println(args.length);
 		Scanner scanner = new Scanner(System.in);
-   System.out.println("Enter your file directory");
-    String directory = scanner.nextLine();
-    System.out.println("Enter directory for the desire location (REMEMBER, when we are typing the file directory, please add \\ in the end)");
-    System.out.println("EX: C:\\Users\\Example\\2024 Spring\\");
-    String final_Directory = scanner.nextLine();
-    System.out.println("Enter the desire output file name");
-    String outPut_name = scanner.nextLine();
+		String directory = args[0];
+		String final_Directory = args[1];
+		System.out.println("Enter the desire name of the file");
+		String outPut_name = scanner.nextLine();
 	 //C:\Users\seoji\Downloads\data\data\tiny1.txt
 		//C:\Users\seoji\OneDrive\바탕 화면\College\2023 Fall\2024 Spring\
 		int question_number = 4;
